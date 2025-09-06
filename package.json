@@ -13,6 +13,9 @@
     "lint": "eslint . --ext .ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "db:up": "docker compose up -d db || docker-compose up -d db",
+    "db:down": "docker compose down -v || docker-compose down -v",
+    "db:logs": "docker compose logs -f db || docker-compose logs -f db",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
