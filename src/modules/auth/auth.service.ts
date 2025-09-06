@@ -3,7 +3,7 @@ import { Password } from '../../shared/auth/password';
 import { signJwt } from '../../shared/auth/jwt';
 import { AppError, UnauthorizedError } from '../../shared/errors/app-error';
 
-type RegisterInput = { email: string; password: string; displayName?: string };
+type RegisterInput = { email: string; password: string; fullName?: string };
 
 async function register(input: RegisterInput) {
   const existing = await prisma.user.findUnique({ where: { email: input.email } });
@@ -12,10 +12,10 @@ async function register(input: RegisterInput) {
   }
   const passwordHash = await Password.hash(input.password);
   const user = await prisma.user.create({
-    data: { email: input.email, passwordHash, displayName: input.displayName }
+    data: { email: input.email, passwordHash, fullName: input.fullName }
   });
   const token = signJwt({ sub: user.id, email: user.email });
-  return { token, user: { id: user.id, email: user.email, displayName: user.displayName } };
+  return { token, user: { id: user.id, email: user.email, fullName: user.fullName } };
 }
 
 async function login(input: { email: string; password: string }) {
@@ -24,14 +24,13 @@ async function login(input: { email: string; password: string }) {
   const ok = await Password.verify(user.passwordHash, input.password);
   if (!ok) throw new UnauthorizedError('Invalid credentials');
   const token = signJwt({ sub: user.id, email: user.email });
-  return { token, user: { id: user.id, email: user.email, displayName: user.displayName } };
+  return { token, user: { id: user.id, email: user.email, fullName: user.fullName } };
 }
 
 async function me(userId: string) {
-  const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, displayName: true } });
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, fullName: true } });
   if (!user) throw new AppError('User not found', 404, 'USER_NOT_FOUND');
   return user;
 }
 
 export const authService = { register, login, me };
-
