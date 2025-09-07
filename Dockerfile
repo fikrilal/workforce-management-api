@@ -2,7 +2,9 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --omit=dev
+COPY prisma ./prisma
+RUN npm ci --omit=dev \
+  && npx prisma generate
 
 FROM node:20-alpine AS builder
 WORKDIR /app
@@ -11,7 +13,8 @@ RUN npm ci
 COPY tsconfig.json ./
 COPY prisma ./prisma
 COPY src ./src
-RUN npx prisma generate
+# generate optional in builder (types), safe to run
+RUN npx prisma generate || true
 RUN npm run build
 
 FROM node:20-alpine AS runner
