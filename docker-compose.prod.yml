@@ -20,8 +20,9 @@ services:
     container_name: workforce-api
     env_file:
       - .env
+    # Bind container port 3000 to host loopback 3000 for Nginx upstream
     ports:
-      - "${PORT:-3000}:3000"
+      - "127.0.0.1:3000:3000"
     restart: unless-stopped
     depends_on:
       db:
