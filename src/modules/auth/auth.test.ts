@@ -5,6 +5,7 @@ import { prisma } from '../../infrastructure/database';
 const app = createServer();
 
 beforeEach(async () => {
+  await prisma.payslip.deleteMany();
   await prisma.leaveRequest.deleteMany();
   await prisma.attendanceSession.deleteMany();
   await prisma.user.deleteMany();

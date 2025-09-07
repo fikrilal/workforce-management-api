@@ -13,7 +13,9 @@ async function registerAndLogin() {
 }
 
 beforeEach(async () => {
+  await prisma.payslip.deleteMany();
   await prisma.leaveRequest.deleteMany();
+  await prisma.attendanceSession.deleteMany();
   await prisma.user.deleteMany();
 });
 
@@ -55,4 +57,3 @@ describe('Leaves', () => {
     expect(cancel.body.data.status).toBe('CANCELLED');
   });
 });
-
