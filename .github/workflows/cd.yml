@@ -48,6 +48,8 @@ jobs:
       GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Copy compose to server
         uses: appleboy/scp-action@v0.1.7
         with:
