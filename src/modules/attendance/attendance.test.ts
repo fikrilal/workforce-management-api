@@ -54,8 +54,10 @@ describe("Attendance", () => {
     expect(co.body.data.clockOutAt).toBeTruthy();
     expect(co.body.data.minutesWorked).toBeGreaterThanOrEqual(0);
 
+    const now = new Date();
+    const ym = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
     const list = await request(app)
-      .get("/api/attendance?page=1&pageSize=10")
+      .get(`/api/attendance?page=1&pageSize=10&month=${ym}&method=WEB&status=closed`)
       .set("Authorization", `Bearer ${token}`)
       .expect(200);
     expect(Array.isArray(list.body.data)).toBe(true);

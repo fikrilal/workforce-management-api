@@ -19,6 +19,8 @@ export interface AttendanceRepository {
     userId: string;
     from?: Date;
     to?: Date;
+    method?: CheckinMethod;
+    status?: 'open' | 'closed';
     page?: number;
     pageSize?: number;
   }): Promise<{ items: AttendanceSession[]; total: number }>;

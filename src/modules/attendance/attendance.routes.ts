@@ -25,6 +25,10 @@ attendanceRouter.get(
   validate([
     query("from").optional().isISO8601(),
     query("to").optional().isISO8601(),
+    query("month").optional().matches(/^\d{4}-\d{2}$/),
+    query("year").optional().isInt({ min: 1970, max: 3000 }),
+    query("method").optional().isIn(Array.from(CheckinMethods)),
+    query("status").optional().isIn(["open", "closed"]),
     query("page").optional().isInt({ min: 1 }),
     query("pageSize").optional().isInt({ min: 1, max: 100 }),
   ]),

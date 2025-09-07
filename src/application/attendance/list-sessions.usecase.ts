@@ -4,6 +4,8 @@ export type ListSessionsInput = {
   userId: string;
   from?: Date;
   to?: Date;
+  method?: import('../../domain/attendance/checkin-method').CheckinMethod;
+  status?: 'open' | 'closed';
   page?: number;
   pageSize?: number;
 };
