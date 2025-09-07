@@ -3,12 +3,12 @@ import { authService } from './auth.service';
 import { ResponseUtils } from '../../shared/utils/response-utils';
 
 async function register(req: Request, res: Response) {
-  const { email, password, displayName } = req.body as {
+  const { email, password, fullName } = req.body as {
     email: string;
     password: string;
-    displayName?: string;
+    fullName?: string;
   };
-  const result = await authService.register({ email, password, displayName });
+  const result = await authService.register({ email, password, fullName });
   return ResponseUtils.created(res, result);
 }
 
@@ -24,4 +24,3 @@ async function me(req: Request, res: Response) {
 }
 
 export const authController = { register, login, me };
-

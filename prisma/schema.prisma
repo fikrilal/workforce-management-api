@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
 }
 
 datasource db {
@@ -11,8 +12,92 @@ model User {
   id           String   @id @default(uuid())
   email        String   @unique
   passwordHash String?
-  displayName  String?
+  fullName     String?
+  phone        String?
+  lastLoginAt  DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  // relations
+  attendance   AttendanceSession[]
+  leaves       LeaveRequest[]
+  payslips     Payslip[]
 }
 
+// --- attendance ---
+
+enum CheckinMethod {
+  WEB
+  MOBILE
+  KIOSK
+}
+
+model AttendanceSession {
+  id             String        @id @default(uuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id])
+  workDate       DateTime
+  clockInAt      DateTime
+  clockOutAt     DateTime?
+  minutesWorked  Int?
+  note           String?
+  method         CheckinMethod @default(WEB)
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([userId, workDate])
+}
+
+// --- leave ---
+
+enum LeaveType {
+  ANNUAL
+  SICK
+  UNPAID
+  OTHER
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model LeaveRequest {
+  id          String      @id @default(uuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  type        LeaveType
+  startDate   DateTime
+  endDate     DateTime
+  totalDays   Int
+  reason      String?
+  status      LeaveStatus @default(PENDING)
+  decidedAt   DateTime?
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([userId, startDate])
+}
+
+// --- payslip ---
+
+model Payslip {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  year      Int
+  month     Int // 1..12
+  currency  String   @default("USD")
+  gross     Decimal  @db.Decimal(12, 2)
+  net       Decimal  @db.Decimal(12, 2)
+  items     Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, year, month])
+  @@index([userId])
+}

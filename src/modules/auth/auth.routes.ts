@@ -11,7 +11,7 @@ authRouter.post(
   validate([
     body('email').isEmail(),
     body('password').isString().isLength({ min: 8 }),
-    body('displayName').optional().isString()
+    body('fullName').optional().isString()
   ]),
   authController.register
 );
@@ -23,4 +23,3 @@ authRouter.post(
 );
 
 authRouter.get('/me', authMiddleware, authController.me);
-
