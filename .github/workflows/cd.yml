@@ -48,6 +48,19 @@ jobs:
       GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
     steps:
+      - name: Prepare target directory
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ env.SSH_KEY }}
+          port: ${{ env.SSH_PORT }}
+          script_stop: true
+          script: |
+            set -e
+            sudo mkdir -p "$APP_DIR"
+            sudo chown -R "$SSH_USER":"$SSH_USER" "$APP_DIR"
+            sudo chmod 755 "$APP_DIR"
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Copy compose to server
