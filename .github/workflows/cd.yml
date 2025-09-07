@@ -58,7 +58,8 @@ jobs:
           script_stop: true
           script: |
             set -e
-            mkdir -p "$APP_DIR"
+            echo "creating: ${{ env.APP_DIR }} as user: ${{ env.SSH_USER }}"
+            mkdir -p "${{ env.APP_DIR }}"
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Copy compose to server
