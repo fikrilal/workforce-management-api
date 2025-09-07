@@ -58,9 +58,7 @@ jobs:
           script_stop: true
           script: |
             set -e
-            sudo mkdir -p "$APP_DIR"
-            sudo chown -R "$SSH_USER":"$SSH_USER" "$APP_DIR"
-            sudo chmod 755 "$APP_DIR"
+            mkdir -p "$APP_DIR"
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Copy compose to server
