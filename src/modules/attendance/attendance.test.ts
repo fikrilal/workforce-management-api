@@ -19,6 +19,7 @@ async function registerAndLogin() {
 }
 
 beforeEach(async () => {
+  await prisma.leaveRequest.deleteMany();
   await prisma.attendanceSession.deleteMany();
   await prisma.user.deleteMany();
 });

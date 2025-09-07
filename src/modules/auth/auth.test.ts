@@ -5,6 +5,8 @@ import { prisma } from '../../infrastructure/database';
 const app = createServer();
 
 beforeEach(async () => {
+  await prisma.leaveRequest.deleteMany();
+  await prisma.attendanceSession.deleteMany();
   await prisma.user.deleteMany();
 });
 
@@ -60,4 +62,3 @@ describe('Auth', () => {
     expect(me.body.data.email).toBe(baseUser.email);
   });
 });
-
