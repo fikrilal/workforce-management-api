@@ -25,6 +25,8 @@ attendanceRouter.get(
   validate([
     query("from").optional().isISO8601(),
     query("to").optional().isISO8601(),
+    query("page").optional().isInt({ min: 1 }),
+    query("pageSize").optional().isInt({ min: 1, max: 100 }),
   ]),
   attendanceController.list
 );

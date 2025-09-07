@@ -54,17 +54,24 @@ export const attendanceRepositoryPrisma: AttendanceRepository = {
     });
     return toEntity(row);
   },
-  async listByUser({ userId, from, to }) {
+  async listByUser({ userId, from, to, page = 1, pageSize = 20 }) {
     const where: any = { userId };
     if (from || to) {
       where.workDate = {};
       if (from) where.workDate.gte = from;
       if (to) where.workDate.lte = to;
     }
-    const rows = await prisma.attendanceSession.findMany({
-      where,
-      orderBy: [{ workDate: "desc" }, { clockInAt: "desc" }],
-    });
-    return rows.map(toEntity);
+    const take = Math.min(pageSize, 100);
+    const skip = (Math.max(1, page) - 1) * take;
+    const [rows, total] = await Promise.all([
+      prisma.attendanceSession.findMany({
+        where,
+        orderBy: [{ workDate: "desc" }, { clockInAt: "desc" }],
+        skip,
+        take,
+      }),
+      prisma.attendanceSession.count({ where }),
+    ]);
+    return { items: rows.map(toEntity), total };
   },
 };

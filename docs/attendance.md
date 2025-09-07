@@ -25,13 +25,16 @@ Base path: `/api/attendance` (JWT required)
   - 409 NO_OPEN_SESSION if no open session
 
 ## List Sessions
-- GET `/api/attendance?from=2025-01-01&to=2025-12-31`
+- GET `/api/attendance?from=2025-01-01&to=2025-12-31&page=1&pageSize=20`
+- Pagination: `page` (default 1), `pageSize` (default 20, max 100)
 - Response 200 OK:
 ```
-{ "data": [ { "id": "uuid", "workDate": "...", "clockInAt": "...", "clockOutAt": "..." } ] }
+{
+  "data": [ { "id": "uuid", "workDate": "...", "clockInAt": "...", "clockOutAt": "..." } ],
+  "meta": { "page": 1, "pageSize": 20, "total": 42, "totalPages": 3 }
+}
 ```
 
 Notes:
 - times are UTC; `workDate` is the UTC date bucket for reports.
 - only one open session is allowed at a time.
-

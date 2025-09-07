@@ -55,11 +55,12 @@ describe("Attendance", () => {
     expect(co.body.data.minutesWorked).toBeGreaterThanOrEqual(0);
 
     const list = await request(app)
-      .get("/api/attendance")
+      .get("/api/attendance?page=1&pageSize=10")
       .set("Authorization", `Bearer ${token}`)
       .expect(200);
     expect(Array.isArray(list.body.data)).toBe(true);
-    expect(list.body.data.length).toBeGreaterThanOrEqual(1);
+    expect(list.body.meta).toMatchObject({ page: 1, pageSize: 10 });
+    expect(list.body.meta.total).toBeGreaterThanOrEqual(1);
   });
 
   it("rejects clock-out when no open session", async () => {

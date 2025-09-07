@@ -19,5 +19,7 @@ export interface AttendanceRepository {
     userId: string;
     from?: Date;
     to?: Date;
-  }): Promise<AttendanceSession[]>;
+    page?: number;
+    pageSize?: number;
+  }): Promise<{ items: AttendanceSession[]; total: number }>;
 }
