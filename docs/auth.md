@@ -2,44 +2,108 @@
 
 Base path: `/api/auth`
 
+Conventions:
+- headers: `Content-Type: application/json`
+- auth: only `/api/auth/*` is public; other modules require `Authorization: Bearer <jwt>`
+- success shape: `{ data, meta? }`; error shape: `{ error: { message, code? }, meta? }`
+
 ## Register
 - POST `/api/auth/register`
-- Body:
+
+Request
 ```
+POST /api/auth/register
+Content-Type: application/json
+
 {
-  "email": "e@example.com",
+  "email": "jane@example.com",
   "password": "password123",
   "fullName": "Jane Doe"
 }
 ```
-- Response 201:
+
+Response 201
 ```
 {
   "data": {
     "token": "<jwt>",
-    "user": { "id": "uuid", "email": "e@example.com", "fullName": "Jane Doe" }
+    "user": {
+      "id": "e9b1b3a4-9e1d-4f5b-9c31-1b5f4d3c2a1e",
+      "email": "jane@example.com",
+      "fullName": "Jane Doe"
+    }
   }
 }
 ```
 
+Validation errors
+```
+HTTP/1.1 422 Unprocessable Entity
+{
+  "error": { "message": "Validation error", "code": "VALIDATION_ERROR" },
+  "meta": { "errors": [ { "field": "email", "message": "Invalid value" } ] }
+}
+```
+
+Conflict (email taken)
+```
+HTTP/1.1 409 Conflict
+{ "error": { "message": "Email already in use", "code": "EMAIL_TAKEN" } }
+```
+
 ## Login
 - POST `/api/auth/login`
-- Body:
+
+Request
 ```
-{ "email": "e@example.com", "password": "password123" }
+POST /api/auth/login
+Content-Type: application/json
+
+{ "email": "jane@example.com", "password": "password123" }
 ```
-- Response 200: same shape as register.
+
+Response 200
+```
+{
+  "data": {
+    "token": "<jwt>",
+    "user": {
+      "id": "e9b1b3a4-9e1d-4f5b-9c31-1b5f4d3c2a1e",
+      "email": "jane@example.com",
+      "fullName": "Jane Doe"
+    }
+  }
+}
+```
+
+Unauthorized
+```
+HTTP/1.1 401 Unauthorized
+{ "error": { "message": "Invalid credentials", "code": "UNAUTHORIZED" } }
+```
 
 ## Me
 - GET `/api/auth/me`
-- Headers: `Authorization: Bearer <jwt>`
-- Response 200:
+
+Request
 ```
-{ "data": { "id": "uuid", "email": "e@example.com", "fullName": "Jane Doe" } }
+GET /api/auth/me
+Authorization: Bearer <jwt>
 ```
 
-## Errors
-- 401 Unauthorized: `{ "error": { "code": "UNAUTHORIZED", "message": "Unauthorized" } }`
-- 409 Email taken: `{ "error": { "code": "EMAIL_TAKEN", "message": "Email already in use" } }`
-- 422 Validation: `{ "error": { "code": "VALIDATION_ERROR", ... } }`
+Response 200
+```
+{
+  "data": {
+    "id": "e9b1b3a4-9e1d-4f5b-9c31-1b5f4d3c2a1e",
+    "email": "jane@example.com",
+    "fullName": "Jane Doe"
+  }
+}
+```
 
+Unauthorized
+```
+HTTP/1.1 401 Unauthorized
+{ "error": { "message": "Unauthorized", "code": "UNAUTHORIZED" } }
+```
