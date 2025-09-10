@@ -12,16 +12,16 @@ async function register(req: Request, res: Response) {
   };
   const result = await authService.register({ email, password, fullName });
   setRefreshCookie(res, result.refreshToken);
-  const { token, refreshToken, user } = result;
-  return ResponseUtils.created(res, { accessToken: token, refreshToken, user });
+  const { accessToken, refreshToken, user } = result;
+  return ResponseUtils.created(res, { accessToken, refreshToken, user });
 }
 
 async function login(req: Request, res: Response) {
   const { email, password } = req.body as { email: string; password: string };
   const result = await authService.login({ email, password });
   setRefreshCookie(res, result.refreshToken);
-  const { token, refreshToken, user } = result;
-  return ResponseUtils.ok(res, { accessToken: token, refreshToken, user });
+  const { accessToken, refreshToken, user } = result;
+  return ResponseUtils.ok(res, { accessToken, refreshToken, user });
 }
 
 async function me(req: Request, res: Response) {

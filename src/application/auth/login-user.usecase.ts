@@ -12,9 +12,8 @@ export function makeLoginUser(repo: UserRepository) {
       if (!user || !user.passwordHash) throw new UnauthorizedError('Invalid credentials');
       const ok = await Password.verify(user.passwordHash, input.password);
       if (!ok) throw new UnauthorizedError('Invalid credentials');
-      const token = signJwt({ sub: user.id, email: user.email });
-      return { token, user: { id: user.id, email: user.email, fullName: user.fullName } };
+      const accessToken = signJwt({ sub: user.id, email: user.email });
+      return { accessToken, user: { id: user.id, email: user.email, fullName: user.fullName } };
     }
   };
 }
-
