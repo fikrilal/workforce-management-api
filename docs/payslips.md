@@ -3,7 +3,7 @@
 Base path: `/api/payslips` (JWT required)
 
 Conventions:
-- headers: `Authorization: Bearer <jwt>`
+- headers: `Authorization: Bearer <accessToken>`
 - decimals (gross/net) are serialized as strings in JSON
 
 Entity shape
@@ -36,7 +36,7 @@ pageSize=1..100 (default 20)
 Request
 ```
 GET /api/payslips?year=2025&month=9&page=1&pageSize=20
-Authorization: Bearer <jwt>
+Authorization: Bearer <accessToken>
 ```
 
 Response 200
@@ -66,7 +66,7 @@ Response 200
 Request
 ```
 GET /api/payslips/2025/9
-Authorization: Bearer <jwt>
+Authorization: Bearer <accessToken>
 ```
 
 Response 200

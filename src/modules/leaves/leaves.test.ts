@@ -9,7 +9,7 @@ async function registerAndLogin() {
   const password = 'password123';
   await request(app).post('/api/auth/register').send({ email, password, fullName: 'Leave Tester' }).expect(201);
   const login = await request(app).post('/api/auth/login').send({ email, password }).expect(200);
-  return { token: login.body.data.accessToken as string };
+  return { token: login.body.data.tokens.accessToken as string };
 }
 
 beforeEach(async () => {

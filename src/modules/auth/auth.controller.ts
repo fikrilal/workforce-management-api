@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { authService } from './auth.service';
 import { ResponseUtils } from '../../shared/utils/response-utils';
 import { setRefreshCookie, clearRefreshCookie, getRefreshCookie } from '../../shared/auth/refresh';
+import { config } from '../../config';
 import { UnauthorizedError } from '../../shared/errors/app-error';
 
 async function register(req: Request, res: Response) {
@@ -13,7 +14,14 @@ async function register(req: Request, res: Response) {
   const result = await authService.register({ email, password, fullName });
   setRefreshCookie(res, result.refreshToken);
   const { accessToken, refreshToken, user } = result;
-  return ResponseUtils.created(res, { accessToken, refreshToken, user });
+  const tokens = {
+    accessToken,
+    refreshToken,
+    tokenType: 'Bearer' as const,
+    expiresIn: 15 * 60, // 15 minutes in seconds
+    refreshExpiresIn: config.REFRESH_TOKEN_TTL_DAYS * 24 * 60 * 60
+  };
+  return ResponseUtils.created(res, { tokens, user });
 }
 
 async function login(req: Request, res: Response) {
@@ -21,7 +29,14 @@ async function login(req: Request, res: Response) {
   const result = await authService.login({ email, password });
   setRefreshCookie(res, result.refreshToken);
   const { accessToken, refreshToken, user } = result;
-  return ResponseUtils.ok(res, { accessToken, refreshToken, user });
+  const tokens = {
+    accessToken,
+    refreshToken,
+    tokenType: 'Bearer' as const,
+    expiresIn: 15 * 60,
+    refreshExpiresIn: config.REFRESH_TOKEN_TTL_DAYS * 24 * 60 * 60
+  };
+  return ResponseUtils.ok(res, { tokens, user });
 }
 
 async function me(req: Request, res: Response) {
@@ -39,7 +54,14 @@ async function refresh(req: Request, res: Response) {
   const result = await authService.refreshSession(id, raw);
   const newRefresh = `${result.refreshToken.id}.${result.refreshToken.raw}`;
   setRefreshCookie(res, newRefresh);
-  return ResponseUtils.ok(res, { accessToken: result.accessToken, refreshToken: newRefresh, user: result.user });
+  const tokens = {
+    accessToken: result.accessToken,
+    refreshToken: newRefresh,
+    tokenType: 'Bearer' as const,
+    expiresIn: 15 * 60,
+    refreshExpiresIn: config.REFRESH_TOKEN_TTL_DAYS * 24 * 60 * 60
+  };
+  return ResponseUtils.ok(res, { tokens, user: result.user });
 }
 
 async function logout(req: Request, res: Response) {

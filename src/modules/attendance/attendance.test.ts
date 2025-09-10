@@ -15,7 +15,7 @@ async function registerAndLogin() {
     .post("/api/auth/login")
     .send({ email, password })
     .expect(200);
-  return { token: login.body.data.accessToken as string };
+  return { token: login.body.data.tokens.accessToken as string };
 }
 
 beforeEach(async () => {
