@@ -37,7 +37,8 @@ describe('Auth refresh/logout', () => {
     const sc2 = refresh1.headers['set-cookie'];
     const setCookie2 = Array.isArray(sc2) ? sc2 : sc2 ? [sc2] : [];
     expect(setCookie2.join(';')).toMatch(/refresh_token=/);
-    expect(refresh1.body.data.token).toBeTruthy();
+    expect(refresh1.body.data.accessToken).toBeTruthy();
+    expect(refresh1.body.data.refreshToken).toBeTruthy();
 
     // using old cookie again should fail due to rotation
     await request(app).post('/api/auth/refresh').set('Cookie', setCookie).expect(401);

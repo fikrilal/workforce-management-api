@@ -12,16 +12,16 @@ async function register(req: Request, res: Response) {
   };
   const result = await authService.register({ email, password, fullName });
   setRefreshCookie(res, result.refreshToken);
-  const { token, user } = result;
-  return ResponseUtils.created(res, { token, user });
+  const { token, refreshToken, user } = result;
+  return ResponseUtils.created(res, { accessToken: token, refreshToken, user });
 }
 
 async function login(req: Request, res: Response) {
   const { email, password } = req.body as { email: string; password: string };
   const result = await authService.login({ email, password });
   setRefreshCookie(res, result.refreshToken);
-  const { token, user } = result;
-  return ResponseUtils.ok(res, { token, user });
+  const { token, refreshToken, user } = result;
+  return ResponseUtils.ok(res, { accessToken: token, refreshToken, user });
 }
 
 async function me(req: Request, res: Response) {
@@ -37,8 +37,9 @@ async function refresh(req: Request, res: Response) {
   if (parts.length !== 2) throw new UnauthorizedError();
   const [id, raw] = parts;
   const result = await authService.refreshSession(id, raw);
-  setRefreshCookie(res, `${result.refreshToken.id}.${result.refreshToken.raw}`);
-  return ResponseUtils.ok(res, { token: result.accessToken, user: result.user });
+  const newRefresh = `${result.refreshToken.id}.${result.refreshToken.raw}`;
+  setRefreshCookie(res, newRefresh);
+  return ResponseUtils.ok(res, { accessToken: result.accessToken, refreshToken: newRefresh, user: result.user });
 }
 
 async function logout(req: Request, res: Response) {
