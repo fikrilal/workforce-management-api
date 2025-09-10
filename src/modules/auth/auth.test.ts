@@ -8,6 +8,7 @@ beforeEach(async () => {
   await prisma.payslip.deleteMany();
   await prisma.leaveRequest.deleteMany();
   await prisma.attendanceSession.deleteMany();
+  await prisma.refreshToken.deleteMany();
   await prisma.user.deleteMany();
 });
 
