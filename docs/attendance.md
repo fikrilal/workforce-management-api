@@ -3,7 +3,7 @@
 Base path: `/api/attendance` (JWT required)
 
 Conventions:
-- headers: `Authorization: Bearer <jwt>` and `Content-Type: application/json`
+- headers: `Authorization: Bearer <accessToken>` and `Content-Type: application/json`
 - `method`: one of `WEB`, `MOBILE`, `KIOSK`
 - times are UTC; `workDate` represents the UTC date bucket
 
@@ -14,7 +14,7 @@ Conventions:
 Request (all fields optional)
 ```
 POST /api/attendance/clock-in
-Authorization: Bearer <jwt>
+Authorization: Bearer <accessToken>
 Content-Type: application/json
 
 { "note": "starting my day", "method": "WEB" }
@@ -58,7 +58,7 @@ HTTP/1.1 422 Unprocessable Entity
 Request
 ```
 POST /api/attendance/clock-out
-Authorization: Bearer <jwt>
+Authorization: Bearer <accessToken>
 ```
 
 Response 200
@@ -102,7 +102,7 @@ pageSize=1..100 (default 20)
 Request
 ```
 GET /api/attendance?month=2025-09&method=WEB&status=closed&page=1&pageSize=20
-Authorization: Bearer <jwt>
+Authorization: Bearer <accessToken>
 ```
 
 Response 200

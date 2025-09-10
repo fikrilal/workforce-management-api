@@ -13,9 +13,9 @@ declare global {
 
 export async function authMiddleware(req: Request, _res: Response, next: NextFunction) {
   const header = req.headers.authorization;
-  const token = header?.startsWith('Bearer ') ? header.slice(7) : undefined;
-  if (!token) return next(new UnauthorizedError());
-  const payload = verifyJwt<{ sub: string; email: string }>(token);
+  const accessToken = header?.startsWith('Bearer ') ? header.slice(7) : undefined;
+  if (!accessToken) return next(new UnauthorizedError());
+  const payload = verifyJwt<{ sub: string; email: string }>(accessToken);
   if (!payload) return next(new UnauthorizedError());
   const user = await ports.userRepo.findById(payload.sub);
   if (!user) return next(new UnauthorizedError());

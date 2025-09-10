@@ -12,9 +12,8 @@ export function makeRegisterUser(repo: UserRepository) {
       if (existing) throw new AppError('Email already in use', 409, 'EMAIL_TAKEN');
       const passwordHash = await Password.hash(input.password);
       const user = await repo.create({ email: input.email, passwordHash, fullName: input.fullName });
-      const token = signJwt({ sub: user.id, email: user.email });
-      return { token, user };
+      const accessToken = signJwt({ sub: user.id, email: user.email });
+      return { accessToken, user };
     }
   };
 }
-

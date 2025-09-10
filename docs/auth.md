@@ -4,7 +4,7 @@ Base path: `/api/auth`
 
 Conventions:
 - headers: `Content-Type: application/json`
-- auth: only `/api/auth/*` is public; other modules require `Authorization: Bearer <jwt>`
+- auth: only `/api/auth/*` is public; other modules require `Authorization: Bearer <accessToken>`
 - success shape: `{ data, meta? }`; error shape: `{ error: { message, code? }, meta? }`
 
 ## Register
@@ -22,11 +22,17 @@ Content-Type: application/json
 }
 ```
 
-Response 201
+Response 201 (also sets `Set-Cookie: refresh_token=...; HttpOnly; ...`)
 ```
 {
   "data": {
-    "token": "<jwt>",
+    "tokens": {
+      "accessToken": "<jwt>",
+      "refreshToken": "<refreshTokenId>.<opaque>",
+      "tokenType": "Bearer",
+      "expiresIn": 900,
+      "refreshExpiresIn": 2592000
+    },
     "user": {
       "id": "e9b1b3a4-9e1d-4f5b-9c31-1b5f4d3c2a1e",
       "email": "jane@example.com",
@@ -62,11 +68,17 @@ Content-Type: application/json
 { "email": "jane@example.com", "password": "password123" }
 ```
 
-Response 200
+Response 200 (also sets `Set-Cookie: refresh_token=...; HttpOnly; ...`)
 ```
 {
   "data": {
-    "token": "<jwt>",
+    "tokens": {
+      "accessToken": "<jwt>",
+      "refreshToken": "<refreshTokenId>.<opaque>",
+      "tokenType": "Bearer",
+      "expiresIn": 900,
+      "refreshExpiresIn": 2592000
+    },
     "user": {
       "id": "e9b1b3a4-9e1d-4f5b-9c31-1b5f4d3c2a1e",
       "email": "jane@example.com",
@@ -82,13 +94,40 @@ HTTP/1.1 401 Unauthorized
 { "error": { "message": "Invalid credentials", "code": "UNAUTHORIZED" } }
 ```
 
+## Refresh
+- POST `/api/auth/refresh`
+
+Response 200 (rotates cookie and returns new tokens)
+```
+{
+  "data": {
+    "tokens": {
+      "accessToken": "<new-jwt>",
+      "refreshToken": "<newRefreshTokenId>.<opaque>",
+      "tokenType": "Bearer",
+      "expiresIn": 900,
+      "refreshExpiresIn": 2592000
+    },
+    "user": { "id": "...", "email": "...", "fullName": "..." }
+  }
+}
+```
+
+## Logout
+- POST `/api/auth/logout`
+
+Response 200 (clears cookie)
+```
+{ "data": { "success": true } }
+```
+
 ## Me
 - GET `/api/auth/me`
 
 Request
 ```
 GET /api/auth/me
-Authorization: Bearer <jwt>
+Authorization: Bearer <accessToken>
 ```
 
 Response 200

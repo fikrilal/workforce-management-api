@@ -3,9 +3,9 @@ import { useCases } from '../../application/container';
 type RegisterInput = { email: string; password: string; fullName?: string };
 
 async function register(input: RegisterInput) {
-  const { user, token } = await useCases.registerUser.execute(input);
+  const { user, accessToken } = await useCases.registerUser.execute(input);
   const refresh = await useCases.issueRefresh.execute(user.id);
-  return { token, user, refreshToken: `${refresh.id}.${refresh.raw}` };
+  return { accessToken, user, refreshToken: `${refresh.id}.${refresh.raw}` };
 }
 
 async function login(input: { email: string; password: string }) {

@@ -3,7 +3,7 @@
 Base path: `/api/leaves` (JWT required)
 
 Conventions:
-- headers: `Authorization: Bearer <jwt>` and `Content-Type: application/json`
+- headers: `Authorization: Bearer <accessToken>` and `Content-Type: application/json`
 - dates are UTC and inclusive
 - success shape includes full leave entity
 
@@ -30,7 +30,7 @@ Entity shape
 Request
 ```
 POST /api/leaves
-Authorization: Bearer <jwt>
+Authorization: Bearer <accessToken>
 Content-Type: application/json
 
 {
@@ -78,7 +78,7 @@ HTTP/1.1 409 Conflict
 Request
 ```
 POST /api/leaves/2c3f8c4b-0a5c-42ab-bf36-e5a0d1b9a1f2/cancel
-Authorization: Bearer <jwt>
+Authorization: Bearer <accessToken>
 ```
 
 Response 200
@@ -130,7 +130,7 @@ pageSize=1..100 (default 20)
 Request
 ```
 GET /api/leaves?month=2025-09&type=ANNUAL&status=PENDING&page=1&pageSize=20
-Authorization: Bearer <jwt>
+Authorization: Bearer <accessToken>
 ```
 
 Response 200

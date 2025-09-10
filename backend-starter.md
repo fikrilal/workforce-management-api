@@ -130,13 +130,13 @@ Health endpoint:
 
 ## Auth
 
-- JWT: short-lived access token + optional refresh token
-- Utilities: `shared/auth/jwt.ts` (sign/verify, expiry parsing)
+- JWT: short-lived access token + long-lived refresh token (implemented)
+- Utilities: `shared/auth/jwt.ts` (sign/verify), `shared/auth/refresh.ts` (opaque token + cookies)
 - Passwords: `shared/auth/password.ts` (hash/verify)
-- Typical routes:
+- Routes:
   - `POST /api/auth/register`, `POST /api/auth/login`
-  - `POST /api/auth/refresh` (if using refresh tokens)
-  - `POST /api/auth/logout`
+  - `POST /api/auth/refresh` — rotate refresh cookie, return new tokens
+  - `POST /api/auth/logout` — revoke refresh token and clear cookie
   - `GET /api/auth/me` (JWT required)
 
 ## Database (Prisma + PostgreSQL)

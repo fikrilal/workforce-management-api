@@ -23,10 +23,12 @@ describe('Auth', () => {
     fullName: 'John Doe'
   };
 
-  it('registers a user and returns token', async () => {
+  it('registers a user and returns tokens', async () => {
     const res = await request(app).post('/api/auth/register').send(baseUser);
     expect(res.status).toBe(201);
-    expect(res.body.data).toHaveProperty('token');
+    expect(res.body.data).toHaveProperty('tokens');
+    expect(res.body.data.tokens).toHaveProperty('accessToken');
+    expect(res.body.data.tokens).toHaveProperty('refreshToken');
     expect(res.body.data.user).toMatchObject({ email: baseUser.email, fullName: baseUser.fullName });
   });
 
@@ -41,7 +43,9 @@ describe('Auth', () => {
     await request(app).post('/api/auth/register').send(baseUser).expect(201);
     const res = await request(app).post('/api/auth/login').send({ email: baseUser.email, password: baseUser.password });
     expect(res.status).toBe(200);
-    expect(res.body.data).toHaveProperty('token');
+    expect(res.body.data).toHaveProperty('tokens');
+    expect(res.body.data.tokens).toHaveProperty('accessToken');
+    expect(res.body.data.tokens).toHaveProperty('refreshToken');
     expect(res.body.data.user.email).toBe(baseUser.email);
   });
 
@@ -54,7 +58,7 @@ describe('Auth', () => {
 
   it('requires auth for /api/auth/me and returns current user', async () => {
     const reg = await request(app).post('/api/auth/register').send(baseUser).expect(201);
-    const token = reg.body.data.token as string;
+    const token = reg.body.data.tokens.accessToken as string;
 
     const unauth = await request(app).get('/api/auth/me');
     expect(unauth.status).toBe(401);
