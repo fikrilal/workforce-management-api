@@ -13,5 +13,7 @@ export const config = {
   FRONTEND_URL: process.env.FRONTEND_URL ?? 'http://localhost:3000',
   SENDER_API_KEY: process.env.SENDER_API_KEY ?? '',
   FROM_EMAIL: process.env.FROM_EMAIL ?? 'noreply@example.com',
-  FROM_NAME: process.env.FROM_NAME ?? 'AppName'
+  FROM_NAME: process.env.FROM_NAME ?? 'AppName',
+  REFRESH_TOKEN_TTL_DAYS: num(process.env.REFRESH_TOKEN_TTL_DAYS, 30),
+  REFRESH_COOKIE_NAME: process.env.REFRESH_COOKIE_NAME ?? 'refresh_token'
 } as const;

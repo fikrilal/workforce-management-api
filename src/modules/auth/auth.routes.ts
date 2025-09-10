@@ -23,3 +23,6 @@ authRouter.post(
 );
 
 authRouter.get('/me', authMiddleware, authController.me);
+
+authRouter.post('/refresh', authController.refresh);
+authRouter.post('/logout', authController.logout);
