@@ -3,15 +3,27 @@ import { useCases } from '../../application/container';
 type RegisterInput = { email: string; password: string; fullName?: string };
 
 async function register(input: RegisterInput) {
-  return useCases.registerUser.execute(input);
+  const { user, token } = await useCases.registerUser.execute(input);
+  const refresh = await useCases.issueRefresh.execute(user.id);
+  return { token, user, refreshToken: `${refresh.id}.${refresh.raw}` };
 }
 
 async function login(input: { email: string; password: string }) {
-  return useCases.loginUser.execute(input);
+  const result = await useCases.loginUser.execute(input);
+  const refresh = await useCases.issueRefresh.execute(result.user.id);
+  return { ...result, refreshToken: `${refresh.id}.${refresh.raw}` };
 }
 
 async function me(userId: string) {
   return useCases.getMe.execute(userId);
 }
 
-export const authService = { register, login, me };
+async function refreshSession(tokenId: string, rawToken: string) {
+  return useCases.refreshSession.execute({ currentTokenId: tokenId, rawToken });
+}
+
+async function logout(tokenId: string | null | undefined) {
+  return useCases.logout.execute(tokenId);
+}
+
+export const authService = { register, login, me, refreshSession, logout };

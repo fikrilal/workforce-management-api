@@ -21,6 +21,7 @@ model User {
   attendance   AttendanceSession[]
   leaves       LeaveRequest[]
   payslips     Payslip[]
+  refreshTokens RefreshToken[]
 }
 
 // --- attendance ---
@@ -100,4 +101,22 @@ model Payslip {
 
   @@unique([userId, year, month])
   @@index([userId])
+}
+
+// --- auth refresh tokens ---
+
+model RefreshToken {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  tokenHash     String
+  expiresAt     DateTime
+  revokedAt     DateTime?
+  replacedById  String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@index([expiresAt])
 }
