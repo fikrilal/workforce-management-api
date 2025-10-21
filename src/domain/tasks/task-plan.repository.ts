@@ -30,4 +30,11 @@ export interface TaskPlanRepository {
     summary?: string | null;
     tasks: TaskEntryInput[];
   }): Promise<TaskPlan>;
+  listByUser(params: {
+    userId: string;
+    from?: Date;
+    to?: Date;
+    page?: number;
+    pageSize?: number;
+  }): Promise<{ items: TaskPlan[]; total: number }>;
 }

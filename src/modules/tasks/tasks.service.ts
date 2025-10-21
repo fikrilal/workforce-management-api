@@ -6,6 +6,13 @@ type PlanPayload = {
   tasks: TaskPayload[];
 };
 
+type HistoryQuery = {
+  from?: Date;
+  to?: Date;
+  page?: number;
+  pageSize?: number;
+};
+
 async function createTodayPlan(userId: string, payload: PlanPayload) {
   return useCases.createTaskPlan.execute({
     userId,
@@ -23,4 +30,18 @@ async function updateTodayPlan(userId: string, planId: string, payload: PlanPayl
   });
 }
 
-export const tasksService = { createTodayPlan, updateTodayPlan };
+async function getTodayPlan(userId: string) {
+  return useCases.getTodayTaskPlan.execute({ userId });
+}
+
+async function listHistory(userId: string, query: HistoryQuery) {
+  return useCases.listTaskPlans.execute({
+    userId,
+    from: query.from,
+    to: query.to,
+    page: query.page,
+    pageSize: query.pageSize
+  });
+}
+
+export const tasksService = { createTodayPlan, updateTodayPlan, getTodayPlan, listHistory };

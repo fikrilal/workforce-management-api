@@ -121,6 +121,8 @@ const planIncludes = {
   }
 };
 
+const planOrderBy = [{ workDate: 'desc' as const }, { createdAt: 'desc' as const }];
+
 export const taskPlanRepositoryPrisma: TaskPlanRepository = {
   async findById(planId: string) {
     const row = await prisma.taskPlan.findUnique({
@@ -166,5 +168,27 @@ export const taskPlanRepositoryPrisma: TaskPlanRepository = {
       include: planIncludes
     });
     return mapPlan(row);
+  },
+
+  async listByUser({ userId, from, to, page = 1, pageSize = 10 }) {
+    const take = Math.min(Math.max(pageSize, 1), 50);
+    const skip = (Math.max(page, 1) - 1) * take;
+    const where: { userId: string; workDate?: { gte?: Date; lte?: Date } } = { userId };
+    if (from || to) {
+      where.workDate = {};
+      if (from) where.workDate.gte = from;
+      if (to) where.workDate.lte = to;
+    }
+    const [rows, total] = await Promise.all([
+      prisma.taskPlan.findMany({
+        where,
+        orderBy: planOrderBy,
+        skip,
+        take,
+        include: planIncludes
+      }),
+      prisma.taskPlan.count({ where })
+    ]);
+    return { items: rows.map(mapPlan), total };
   }
 };

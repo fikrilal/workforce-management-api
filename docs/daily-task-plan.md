@@ -22,11 +22,11 @@
 
 - **http layer**
   - routes under `/api/tasks`.
-  - `POST /api/tasks/plans` create today’s plan with task entries + attachments.
-  - `PATCH /api/tasks/plans/:planId` update today’s plan metadata and replace task list (reject if not today).
-  - `PATCH /api/tasks/entries/:entryId` update status/notes/order for today only.
-  - `GET /api/tasks/plans/today` fetch active plan (404 if missing).
-  - `GET /api/tasks/history?from=&to=` list past plans with pagination (read-only).
+  - `POST /api/tasks/plans` create today’s plan with task entries + attachments. (done)
+  - `PATCH /api/tasks/plans/:planId` update today’s plan metadata and replace task list (reject if not today). (done)
+  - `PATCH /api/tasks/entries/:entryId` update status/notes/order for today only. (pending)
+  - `GET /api/tasks/plans/today` fetch active plan (404 if missing). (done)
+  - `GET /api/tasks/history?from=&to=` list past plans with pagination (read-only). (done)
   - validation using `express-validator`; integrate with `authMiddleware`.
 
 - **attachments**

@@ -21,4 +21,25 @@ async function updatePlan(req: Request, res: Response) {
   return ResponseUtils.ok(res, plan);
 }
 
-export const tasksController = { createPlan, updatePlan };
+async function getTodayPlan(req: Request, res: Response) {
+  const plan = await tasksService.getTodayPlan(req.user!.id);
+  return ResponseUtils.ok(res, plan);
+}
+
+async function listHistory(req: Request, res: Response) {
+  const { from, to, page, pageSize } = req.query as {
+    from?: string;
+    to?: string;
+    page?: string;
+    pageSize?: string;
+  };
+  const result = await tasksService.listHistory(req.user!.id, {
+    from: from ? new Date(from) : undefined,
+    to: to ? new Date(to) : undefined,
+    page: page ? parseInt(page, 10) : undefined,
+    pageSize: pageSize ? parseInt(pageSize, 10) : undefined
+  });
+  return ResponseUtils.ok(res, result.items, result.meta);
+}
+
+export const tasksController = { createPlan, updatePlan, getTodayPlan, listHistory };

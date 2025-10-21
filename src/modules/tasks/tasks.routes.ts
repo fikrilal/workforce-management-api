@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { body, param } from 'express-validator';
+import { body, param, query } from 'express-validator';
 import { authMiddleware } from '../../shared/middleware/auth';
 import { validate } from '../../shared/middleware/validate';
 import { tasksController } from './tasks.controller';
@@ -32,4 +32,17 @@ tasksRouter.patch(
   '/plans/:planId',
   validate([param('planId').isUUID(), ...taskValidators]),
   tasksController.updatePlan
+);
+
+tasksRouter.get('/plans/today', tasksController.getTodayPlan);
+
+tasksRouter.get(
+  '/history',
+  validate([
+    query('from').optional().isISO8601(),
+    query('to').optional().isISO8601(),
+    query('page').optional().isInt({ min: 1 }),
+    query('pageSize').optional().isInt({ min: 1, max: 50 })
+  ]),
+  tasksController.listHistory
 );
