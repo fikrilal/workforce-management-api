@@ -52,4 +52,19 @@ describe('Auth refresh/logout', () => {
     // refreshing after logout should fail
     await request(app).post('/api/auth/refresh').set('Cookie', setCookie2).expect(401);
   });
+
+  it('accepts refresh token in request body when cookie is missing', async () => {
+    const reg = await request(app).post('/api/auth/register').send({
+      ...baseUser,
+      email: `body_${Date.now()}@example.com`
+    }).expect(201);
+    const refreshToken = reg.body.data.tokens.refreshToken;
+    expect(typeof refreshToken).toBe('string');
+
+    const refreshed = await request(app).post('/api/auth/refresh').send({ refreshToken }).expect(200);
+    expect(refreshed.body.data.tokens.accessToken).toBeTruthy();
+    expect(refreshed.body.data.tokens.refreshToken).toBeTruthy();
+
+    await request(app).post('/api/auth/refresh').send({ refreshToken }).expect(401);
+  });
 });
