@@ -228,4 +228,54 @@ describe('Tasks plans', () => {
     expect(items[0].tasks[0].title).toBe('today-task');
     expect(historyRes.body.meta).toEqual({ total: 3, page: 1, pageSize: 10 });
   });
+
+  it('updates a single task entry for today and blocks updates for past plans', async () => {
+    const { token } = await registerAndLogin();
+    const createRes = await request(app)
+      .post('/api/tasks/plans')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        tasks: [
+          {
+            title: 'Entry task one',
+            attachments: [{ url: 'https://example.com/entry' }]
+          }
+        ]
+      })
+      .expect(201);
+
+    const planId: string = createRes.body.data.id;
+    const entryId: string = createRes.body.data.tasks[0].id;
+
+    const entryUpdate = await request(app)
+      .patch(`/api/tasks/entries/${entryId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        title: 'Entry updated',
+        status: 'DONE',
+        description: 'wrapped up',
+        order: 5,
+        attachments: [{ url: 'https://example.com/entry-updated', label: 'ref' }]
+      })
+      .expect(200);
+
+    expect(entryUpdate.body.data.title).toBe('Entry updated');
+    expect(entryUpdate.body.data.status).toBe('DONE');
+    expect(entryUpdate.body.data.order).toBe(5);
+    expect(entryUpdate.body.data.attachments).toHaveLength(1);
+
+    const yesterday = new Date();
+    yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+    const lockedDate = new Date(Date.UTC(yesterday.getUTCFullYear(), yesterday.getUTCMonth(), yesterday.getUTCDate()));
+    await prisma.taskPlan.update({
+      where: { id: planId },
+      data: { workDate: lockedDate }
+    });
+
+    await request(app)
+      .patch(`/api/tasks/entries/${entryId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ status: 'PLANNED' })
+      .expect(409);
+  });
 });

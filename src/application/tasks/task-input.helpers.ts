@@ -1,6 +1,7 @@
 import { AppError } from '../../shared/errors/app-error';
 import type { TaskEntryInput } from '../../domain/tasks/task-plan.repository';
 import type { TaskStatus } from '../../domain/tasks/task-status';
+import type { TaskAttachmentLink } from '../../domain/tasks/task-attachment';
 
 export type AttachmentPayload = {
   url: string;
@@ -10,6 +11,14 @@ export type AttachmentPayload = {
 
 export type TaskPayload = {
   title: string;
+  description?: string | null;
+  status?: string | null;
+  order?: number | null;
+  attachments?: AttachmentPayload[] | null;
+};
+
+export type TaskUpdatePayload = {
+  title?: string | null;
   description?: string | null;
   status?: string | null;
   order?: number | null;
@@ -47,7 +56,7 @@ function ensureValidStatus(status: string | null | undefined): TaskStatus {
   return normalized as TaskStatus;
 }
 
-function normalizeAttachments(input: AttachmentPayload[] | null | undefined): TaskEntryInput['attachments'] {
+export function normalizeAttachments(input: AttachmentPayload[] | null | undefined): TaskEntryInput['attachments'] {
   if (!input || input.length === 0) return [];
   if (input.length > MAX_ATTACHMENTS_PER_TASK) {
     throw new AppError(`attachments per task must not exceed ${MAX_ATTACHMENTS_PER_TASK}`, 422, 'VALIDATION_ERROR');
@@ -130,4 +139,63 @@ export function normalizeTasks(tasks: TaskPayload[]): TaskEntryInput[] {
       attachments: normalizeAttachments(task.attachments)
     };
   });
+}
+
+export function normalizeTaskUpdate(
+  payload: TaskUpdatePayload,
+  current: {
+    title: string;
+    description: string | null;
+    status: TaskStatus;
+    order: number;
+    attachments: TaskAttachmentLink[];
+  }
+) {
+  const titleSrc = payload.title !== undefined && payload.title !== null ? payload.title : current.title;
+  if (typeof titleSrc !== 'string') throw new AppError('task title is required', 422, 'VALIDATION_ERROR');
+  const title = titleSrc.trim();
+  if (!title) throw new AppError('task title is required', 422, 'VALIDATION_ERROR');
+  if (title.length > MAX_TITLE_LENGTH) {
+    throw new AppError(`task title must be at most ${MAX_TITLE_LENGTH} characters`, 422, 'VALIDATION_ERROR');
+  }
+
+  let description: string | null = current.description;
+  if (payload.description !== undefined) {
+    if (payload.description === null) {
+      description = null;
+    } else if (typeof payload.description === 'string') {
+      const trimmed = payload.description.trim();
+      if (trimmed.length > MAX_DESCRIPTION_LENGTH) {
+        throw new AppError(`task description must be at most ${MAX_DESCRIPTION_LENGTH} characters`, 422, 'VALIDATION_ERROR');
+      }
+      description = trimmed || null;
+    } else {
+      throw new AppError('task description must be a string', 422, 'VALIDATION_ERROR');
+    }
+  }
+
+  const status = payload.status !== undefined && payload.status !== null
+    ? ensureValidStatus(payload.status)
+    : current.status;
+
+  let order = current.order;
+  if (payload.order !== undefined && payload.order !== null) {
+    if (!Number.isInteger(payload.order) || payload.order < 0) {
+      throw new AppError('task order must be a non-negative integer', 422, 'VALIDATION_ERROR');
+    }
+    order = payload.order;
+  }
+
+  const attachmentInput =
+    payload.attachments !== undefined
+      ? payload.attachments ?? []
+      : current.attachments.map((item) => ({
+          url: item.url,
+          label: item.label ?? undefined,
+          description: item.description ?? undefined
+        }));
+
+  const attachments = normalizeAttachments(attachmentInput);
+
+  return { title, description, status, order, attachments };
 }

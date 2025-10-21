@@ -1,4 +1,5 @@
 import type { TaskPlan } from './task-plan';
+import type { TaskEntry } from './task-entry';
 import type { TaskStatus } from './task-status';
 
 export type TaskAttachmentInput = {
@@ -19,6 +20,7 @@ export type TaskEntryInput = {
 export interface TaskPlanRepository {
   findById(planId: string): Promise<TaskPlan | null>;
   findByUserAndDate(userId: string, workDate: Date): Promise<TaskPlan | null>;
+  findEntryById(entryId: string): Promise<TaskEntry | null>;
   createPlan(params: {
     userId: string;
     workDate: Date;
@@ -30,6 +32,15 @@ export interface TaskPlanRepository {
     summary?: string | null;
     tasks: TaskEntryInput[];
   }): Promise<TaskPlan>;
+  updateEntry(params: {
+    entryId: string;
+    title?: string;
+    description?: string | null;
+    status?: TaskStatus;
+    order?: number;
+    completedAt?: Date | null;
+    attachments: TaskAttachmentInput[];
+  }): Promise<TaskEntry>;
   listByUser(params: {
     userId: string;
     from?: Date;

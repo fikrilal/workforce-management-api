@@ -34,6 +34,27 @@ tasksRouter.patch(
   tasksController.updatePlan
 );
 
+const entryValidators = [
+  param('entryId').isUUID(),
+  body('title').optional().isString().isLength({ min: 1, max: 200 }),
+  body('description').optional().isString().isLength({ max: 2000 }),
+  body('status')
+    .optional()
+    .isString()
+    .custom((value) => taskStatuses.includes(value.toUpperCase())),
+  body('order').optional().isInt({ min: 0, max: 1000 }),
+  body('attachments').optional().isArray({ max: 5 }),
+  body('attachments.*.url').optional().isString().isLength({ min: 1, max: 2000 }),
+  body('attachments.*.label').optional().isString().isLength({ max: 120 }),
+  body('attachments.*.description').optional().isString().isLength({ max: 500 })
+];
+
+tasksRouter.patch(
+  '/entries/:entryId',
+  validate(entryValidators),
+  tasksController.updateEntry
+);
+
 tasksRouter.get('/plans/today', tasksController.getTodayPlan);
 
 tasksRouter.get(

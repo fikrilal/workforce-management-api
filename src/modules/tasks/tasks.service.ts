@@ -1,5 +1,5 @@
 import { useCases } from '../../application/container';
-import type { TaskPayload } from '../../application/tasks/task-input.helpers';
+import type { TaskPayload, TaskUpdatePayload } from '../../application/tasks/task-input.helpers';
 
 type PlanPayload = {
   summary?: string | null;
@@ -44,4 +44,12 @@ async function listHistory(userId: string, query: HistoryQuery) {
   });
 }
 
-export const tasksService = { createTodayPlan, updateTodayPlan, getTodayPlan, listHistory };
+async function updateEntry(userId: string, entryId: string, payload: TaskUpdatePayload) {
+  return useCases.updateTaskEntry.execute({
+    userId,
+    entryId,
+    payload
+  });
+}
+
+export const tasksService = { createTodayPlan, updateTodayPlan, getTodayPlan, listHistory, updateEntry };

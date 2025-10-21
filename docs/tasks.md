@@ -371,6 +371,97 @@ HTTP/1.1 422 Unprocessable Entity
 }
 ```
 
+## Update Task Entry
+- PATCH `/api/tasks/entries/:entryId`
+
+Only entries that belong to the current day’s plan can be updated. Omitted fields keep their previous values. Attachments replace the entire list when provided (use `[]` or `null` to clear).
+
+Request
+```
+PATCH /api/tasks/entries/cdc8a7c5-2ac8-4cda-96ec-45f12c5c6cbd
+Authorization: Bearer <accessToken>
+Content-Type: application/json
+
+{
+  "title": "polish onboarding emails",
+  "description": "sent to marketing for review",
+  "status": "DONE",
+  "order": 3,
+  "attachments": [
+    {
+      "url": "https://example.com/docs/email-spec",
+      "label": "email copy"
+    },
+    {
+      "url": "https://example.com/tickets/123",
+      "label": "tracking ticket",
+      "description": "linked for QA review"
+    }
+  ]
+}
+```
+
+Response 200
+```
+{
+  "data": {
+    "id": "cdc8a7c5-2ac8-4cda-96ec-45f12c5c6cbd",
+    "taskPlanId": "bdcaa566-6ab9-40d8-95d7-791ebb0fa4ba",
+    "title": "polish onboarding emails",
+    "description": "sent to marketing for review",
+    "status": "DONE",
+    "order": 3,
+    "completedAt": null,
+    "createdAt": "2025-10-21T09:02:31.714Z",
+    "updatedAt": "2025-10-21T10:11:42.123Z",
+    "attachments": [
+      {
+        "id": "b20f876a-ef86-4b8d-89a4-98f9234546da",
+        "taskEntryId": "cdc8a7c5-2ac8-4cda-96ec-45f12c5c6cbd",
+        "label": "email copy",
+        "url": "https://example.com/docs/email-spec",
+        "description": null,
+        "createdAt": "2025-10-21T10:11:42.123Z",
+        "updatedAt": "2025-10-21T10:11:42.123Z"
+      },
+      {
+        "id": "6ef1b503-f1ae-4cbb-808a-e5f022e567c9",
+        "taskEntryId": "cdc8a7c5-2ac8-4cda-96ec-45f12c5c6cbd",
+        "label": "tracking ticket",
+        "url": "https://example.com/tickets/123",
+        "description": "linked for QA review",
+        "createdAt": "2025-10-21T10:11:42.123Z",
+        "updatedAt": "2025-10-21T10:11:42.123Z"
+      }
+    ]
+  }
+}
+```
+
+Locked plan (entry belongs to earlier day)
+```
+HTTP/1.1 409 Conflict
+{
+  "error": { "message": "plan can no longer be updated", "code": "PLAN_LOCKED" }
+}
+```
+
+Entry not found or not owned by user
+```
+HTTP/1.1 404 Not Found
+{
+  "error": { "message": "Task entry not found", "code": "ENTRY_NOT_FOUND" }
+}
+```
+
+Validation error (non-https attachment)
+```
+HTTP/1.1 422 Unprocessable Entity
+{
+  "error": { "message": "attachment url must use https", "code": "VALIDATION_ERROR" }
+}
+```
+
 ## Notes
 - `workDate` uses start-of-day UTC (00:00:00.000Z). The same user can only create one plan per UTC date.
 - Task status must be one of `PLANNED`, `IN_PROGRESS`, or `DONE`. Case-insensitive input is accepted, but responses always return uppercase.

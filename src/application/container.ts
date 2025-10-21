@@ -22,6 +22,7 @@ import { makeCreateTaskPlan } from './tasks/create-task-plan.usecase';
 import { makeUpdateTaskPlan } from './tasks/update-task-plan.usecase';
 import { makeGetTodayTaskPlan } from './tasks/get-today-task-plan.usecase';
 import { makeListTaskPlans } from './tasks/list-task-plans.usecase';
+import { makeUpdateTaskEntry } from './tasks/update-task-entry.usecase';
 
 // simple composition root for wiring dependencies
 const userRepo = userRepositoryPrisma;
@@ -49,7 +50,8 @@ export const useCases = {
   createTaskPlan: makeCreateTaskPlan(taskPlanRepo),
   updateTaskPlan: makeUpdateTaskPlan(taskPlanRepo),
   getTodayTaskPlan: makeGetTodayTaskPlan(taskPlanRepo),
-  listTaskPlans: makeListTaskPlans(taskPlanRepo)
+  listTaskPlans: makeListTaskPlans(taskPlanRepo),
+  updateTaskEntry: makeUpdateTaskEntry(taskPlanRepo)
 };
 
 export const ports = {
