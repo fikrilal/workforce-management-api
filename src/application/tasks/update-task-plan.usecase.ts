@@ -20,7 +20,7 @@ export function makeUpdateTaskPlan(taskPlanRepo: TaskPlanRepository) {
     async execute(input: UpdateTaskPlanInput): Promise<TaskPlan> {
       const plan = await taskPlanRepo.findById(input.planId);
       if (!plan || plan.userId !== input.userId) {
-        throw new AppError('task plan not found', 404, 'PLAN_NOT_FOUND');
+        throw new AppError('Task plan not found', 404, 'PLAN_NOT_FOUND');
       }
       const todayUtc = startOfUtcDay(new Date());
       if (plan.workDate.getTime() !== todayUtc.getTime()) {

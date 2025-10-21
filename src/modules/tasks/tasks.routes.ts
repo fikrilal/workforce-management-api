@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { body, param } from 'express-validator';
+import { body, param, query } from 'express-validator';
 import { authMiddleware } from '../../shared/middleware/auth';
 import { validate } from '../../shared/middleware/validate';
 import { tasksController } from './tasks.controller';
@@ -32,4 +32,38 @@ tasksRouter.patch(
   '/plans/:planId',
   validate([param('planId').isUUID(), ...taskValidators]),
   tasksController.updatePlan
+);
+
+const entryValidators = [
+  param('entryId').isUUID(),
+  body('title').optional().isString().isLength({ min: 1, max: 200 }),
+  body('description').optional().isString().isLength({ max: 2000 }),
+  body('status')
+    .optional()
+    .isString()
+    .custom((value) => taskStatuses.includes(value.toUpperCase())),
+  body('order').optional().isInt({ min: 0, max: 1000 }),
+  body('attachments').optional().isArray({ max: 5 }),
+  body('attachments.*.url').optional().isString().isLength({ min: 1, max: 2000 }),
+  body('attachments.*.label').optional().isString().isLength({ max: 120 }),
+  body('attachments.*.description').optional().isString().isLength({ max: 500 })
+];
+
+tasksRouter.patch(
+  '/entries/:entryId',
+  validate(entryValidators),
+  tasksController.updateEntry
+);
+
+tasksRouter.get('/plans/today', tasksController.getTodayPlan);
+
+tasksRouter.get(
+  '/history',
+  validate([
+    query('from').optional().isISO8601(),
+    query('to').optional().isISO8601(),
+    query('page').optional().isInt({ min: 1 }),
+    query('pageSize').optional().isInt({ min: 1, max: 50 })
+  ]),
+  tasksController.listHistory
 );

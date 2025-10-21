@@ -19,6 +19,9 @@ async function registerAndLogin() {
 }
 
 beforeEach(async () => {
+  await prisma.taskAttachmentLink.deleteMany();
+  await prisma.taskEntry.deleteMany();
+  await prisma.taskPlan.deleteMany();
   await prisma.payslip.deleteMany();
   await prisma.leaveRequest.deleteMany();
   await prisma.attendanceSession.deleteMany();

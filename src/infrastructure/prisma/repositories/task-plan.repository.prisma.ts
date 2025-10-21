@@ -121,6 +121,8 @@ const planIncludes = {
   }
 };
 
+const planOrderBy = [{ workDate: 'desc' as const }, { createdAt: 'desc' as const }];
+
 export const taskPlanRepositoryPrisma: TaskPlanRepository = {
   async findById(planId: string) {
     const row = await prisma.taskPlan.findUnique({
@@ -128,6 +130,36 @@ export const taskPlanRepositoryPrisma: TaskPlanRepository = {
       include: planIncludes
     });
     return row ? mapPlan(row) : null;
+  },
+
+  async findEntryById(entryId: string) {
+    const row = await prisma.taskEntry.findUnique({
+      where: { id: entryId },
+      include: {
+        attachments: true
+      }
+    });
+    if (!row) return null;
+    return mapEntry({
+      id: row.id,
+      taskPlanId: row.taskPlanId,
+      title: row.title,
+      description: row.description,
+      status: row.status,
+      order: row.order,
+      completedAt: row.completedAt,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+      attachments: row.attachments.map((attachment) => ({
+        id: attachment.id,
+        taskEntryId: attachment.taskEntryId,
+        label: attachment.label,
+        url: attachment.url,
+        description: attachment.description,
+        createdAt: attachment.createdAt,
+        updatedAt: attachment.updatedAt
+      }))
+    });
   },
 
   async findByUserAndDate(userId: string, workDate: Date) {
@@ -166,5 +198,71 @@ export const taskPlanRepositoryPrisma: TaskPlanRepository = {
       include: planIncludes
     });
     return mapPlan(row);
+  },
+
+  async updateEntry(params) {
+    const row = await prisma.taskEntry.update({
+      where: { id: params.entryId },
+      data: {
+        title: params.title,
+        description: params.description ?? null,
+        status: params.status,
+        order: params.order,
+        completedAt: params.completedAt ?? null,
+        attachments: {
+          deleteMany: {},
+          create: params.attachments.map((attachment) => ({
+            url: attachment.url,
+            label: attachment.label ?? null,
+            description: attachment.description ?? null
+          }))
+        }
+      },
+      include: {
+        attachments: true
+      }
+    });
+    return mapEntry({
+      id: row.id,
+      taskPlanId: row.taskPlanId,
+      title: row.title,
+      description: row.description,
+      status: row.status,
+      order: row.order,
+      completedAt: row.completedAt,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+      attachments: row.attachments.map((attachment) => ({
+        id: attachment.id,
+        taskEntryId: attachment.taskEntryId,
+        label: attachment.label,
+        url: attachment.url,
+        description: attachment.description,
+        createdAt: attachment.createdAt,
+        updatedAt: attachment.updatedAt
+      }))
+    });
+  },
+
+  async listByUser({ userId, from, to, page = 1, pageSize = 10 }) {
+    const take = Math.min(Math.max(pageSize, 1), 50);
+    const skip = (Math.max(page, 1) - 1) * take;
+    const where: { userId: string; workDate?: { gte?: Date; lte?: Date } } = { userId };
+    if (from || to) {
+      where.workDate = {};
+      if (from) where.workDate.gte = from;
+      if (to) where.workDate.lte = to;
+    }
+    const [rows, total] = await Promise.all([
+      prisma.taskPlan.findMany({
+        where,
+        orderBy: planOrderBy,
+        skip,
+        take,
+        include: planIncludes
+      }),
+      prisma.taskPlan.count({ where })
+    ]);
+    return { items: rows.map(mapPlan), total };
   }
 };
