@@ -17,6 +17,9 @@ import { makeListLeaves } from './leave/list-leaves.usecase';
 import { makeListPayslips } from './payslip/list-payslips.usecase';
 import { makeGetPayslip } from './payslip/get-payslip.usecase';
 import { refreshTokenRepositoryPrisma } from '../infrastructure/prisma/repositories/refresh-token.repository.prisma';
+import { taskPlanRepositoryPrisma } from '../infrastructure/prisma/repositories/task-plan.repository.prisma';
+import { makeCreateTaskPlan } from './tasks/create-task-plan.usecase';
+import { makeUpdateTaskPlan } from './tasks/update-task-plan.usecase';
 
 // simple composition root for wiring dependencies
 const userRepo = userRepositoryPrisma;
@@ -24,6 +27,7 @@ const attendanceRepo = attendanceRepositoryPrisma;
 const leaveRepo = leaveRepositoryPrisma;
 const payslipRepo = payslipRepositoryPrisma;
 const refreshTokenRepo = refreshTokenRepositoryPrisma;
+const taskPlanRepo = taskPlanRepositoryPrisma;
 
 export const useCases = {
   registerUser: makeRegisterUser(userRepo),
@@ -39,7 +43,9 @@ export const useCases = {
   cancelLeave: makeCancelLeave(leaveRepo),
   listLeaves: makeListLeaves(leaveRepo),
   listPayslips: makeListPayslips(payslipRepo),
-  getPayslip: makeGetPayslip(payslipRepo)
+  getPayslip: makeGetPayslip(payslipRepo),
+  createTaskPlan: makeCreateTaskPlan(taskPlanRepo),
+  updateTaskPlan: makeUpdateTaskPlan(taskPlanRepo)
 };
 
 export const ports = {
@@ -47,5 +53,6 @@ export const ports = {
   attendanceRepo,
   leaveRepo,
   payslipRepo,
-  refreshTokenRepo
+  refreshTokenRepo,
+  taskPlanRepo
 };
