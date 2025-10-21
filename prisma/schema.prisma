@@ -22,6 +22,7 @@ model User {
   leaves       LeaveRequest[]
   payslips     Payslip[]
   refreshTokens RefreshToken[]
+  taskPlans    TaskPlan[]
 }
 
 // --- attendance ---
@@ -119,4 +120,57 @@ model RefreshToken {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+// --- tasks ---
+
+enum TaskStatus {
+  PLANNED
+  IN_PROGRESS
+  DONE
+}
+
+model TaskPlan {
+  id        String      @id @default(uuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  workDate  DateTime
+  summary   String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  tasks     TaskEntry[]
+
+  @@unique([userId, workDate])
+  @@index([userId, workDate])
+}
+
+model TaskEntry {
+  id          String               @id @default(uuid())
+  taskPlanId  String
+  taskPlan    TaskPlan             @relation(fields: [taskPlanId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  status      TaskStatus           @default(PLANNED)
+  order       Int                  @default(0)
+  completedAt DateTime?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  attachments TaskAttachmentLink[]
+
+  @@index([taskPlanId])
+}
+
+model TaskAttachmentLink {
+  id          String    @id @default(uuid())
+  taskEntryId String
+  taskEntry   TaskEntry @relation(fields: [taskEntryId], references: [id], onDelete: Cascade)
+  label       String?
+  url         String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([taskEntryId])
 }

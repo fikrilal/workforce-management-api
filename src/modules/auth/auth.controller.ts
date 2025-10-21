@@ -5,6 +5,17 @@ import { setRefreshCookie, clearRefreshCookie, getRefreshCookie } from '../../sh
 import { config } from '../../config';
 import { UnauthorizedError } from '../../shared/errors/app-error';
 
+function extractRefreshToken(req: Request) {
+  const cookieToken = getRefreshCookie(req);
+  if (cookieToken) return cookieToken;
+  const body = req.body as { refreshToken?: unknown } | undefined;
+  if (body && typeof body.refreshToken === 'string') {
+    const trimmed = body.refreshToken.trim();
+    if (trimmed) return trimmed;
+  }
+  return null;
+}
+
 async function register(req: Request, res: Response) {
   const { email, password, fullName } = req.body as {
     email: string;
@@ -45,10 +56,10 @@ async function me(req: Request, res: Response) {
 }
 
 async function refresh(req: Request, res: Response) {
-  const cookie = getRefreshCookie(req);
-  if (!cookie) throw new UnauthorizedError();
+  const token = extractRefreshToken(req);
+  if (!token) throw new UnauthorizedError();
   // we store token id inside cookie? since opaque token isn't tied to id, we need id. embed id prefix
-  const parts = cookie.split('.');
+  const parts = token.split('.');
   if (parts.length !== 2) throw new UnauthorizedError();
   const [id, raw] = parts;
   const result = await authService.refreshSession(id, raw);

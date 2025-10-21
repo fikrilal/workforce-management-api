@@ -7,6 +7,25 @@ endpoints:
 - `POST /api/auth/refresh` — reads the refresh cookie, rotates the token, sets a new cookie, and returns a new access token plus user.
 - `POST /api/auth/logout` — revokes the current refresh token and clears the cookie.
 
+requests:
+- refresh
+  ```
+  POST /api/auth/refresh
+  Cookie: refresh_token=<refreshTokenId>.<opaque>
+  ```
+  or
+  ```
+  POST /api/auth/refresh
+  Content-Type: application/json
+
+  { "refreshToken": "<refreshTokenId>.<opaque>" }
+  ```
+- logout
+  ```
+  POST /api/auth/logout
+  Cookie: refresh_token=<refreshTokenId>.<opaque>
+  ```
+
 example responses
 
 register/login 201/200

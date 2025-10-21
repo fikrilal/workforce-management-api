@@ -97,6 +97,20 @@ HTTP/1.1 401 Unauthorized
 ## Refresh
 - POST `/api/auth/refresh`
 
+Request (cookie)
+```
+POST /api/auth/refresh
+Cookie: refresh_token=<refreshTokenId>.<opaque>
+```
+
+Request (body)
+```
+POST /api/auth/refresh
+Content-Type: application/json
+
+{ "refreshToken": "<refreshTokenId>.<opaque>" }
+```
+
 Response 200 (rotates cookie and returns new tokens)
 ```
 {
